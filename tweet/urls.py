@@ -1,6 +1,11 @@
 from django.urls import path
-from . import views
+from .views import AllTweetsView, UserTweetsView
 
 urlpatterns = [
-    path("", views.tweet_list, name="tweet_list"),  # / 경로에 tweet_list 뷰 연결
+    path("api/v1/tweets", AllTweetsView.as_view(), name="all_tweets"),
+    path(
+        "api/v1/users/<int:user_id>/tweets",
+        UserTweetsView.as_view(),
+        name="user_tweets",
+    ),
 ]

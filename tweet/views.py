@@ -1,17 +1,21 @@
-from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from .models import Tweet
+from .serializers import TweetSerializer
 
 
-from django.db import models
-
-class Tweet(models.Model):
-    content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.content
+class AllTweetsView(APIView):
+    def get(self, request):
+        tweets = Tweet.objects.all()
+        serializer = TweetSerializer(tweets, many=True)
+        return Response(serializer.data)
 
 
-def tweet_list(request):
-    tweets = Tweet.objects.all()  # 모든 Tweet 가져오기
-    return render(request, "tweets/tweet_list.html", {"tweets": tweets})
+class UserTweetsView(APIView):
+    def get(self, request, user_id):
+        tweets = Tweet.objects.filter(user_id=user_id)
+        if not tweets.exists():
+            raise NotFound("User not found or no tweets by the user.")
+        serializer = TweetSerializer(tweets, many=True)
+        return Response(serializer.data)
